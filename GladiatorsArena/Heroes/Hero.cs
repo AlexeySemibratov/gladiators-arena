@@ -21,8 +21,6 @@ namespace GladiatorsArena.Heroes
         public Damage BaseAttackDamage { get; private set; }
         public Hero Entity => this; 
 
-        private HeroEvents _events = new HeroEvents();
-
         public Hero(string name, int maxHP, Damage baseAttackDamage)
         {
             Name = name;
