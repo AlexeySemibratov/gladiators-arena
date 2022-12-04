@@ -1,4 +1,6 @@
-﻿namespace GladiatorsArena.Heroes.Vampire
+﻿using GladiatorsArena.DamageData;
+
+namespace GladiatorsArena.Heroes.Vampire
 {
     /// <summary>
     /// Вампир.
@@ -11,15 +13,19 @@
     {
         private LifeSteal _lifeSteal;
 
-        public Vampire(string name, int maxHP, Damage baseAttackDamage) : base(name, maxHP, baseAttackDamage)
+        public Vampire(string name, int maxHP, Damage baseAttackDamage) : base(name, maxHP, baseAttackDamage, HeroType.Vampire)
         {
             _lifeSteal = new LifeSteal(this);
         }
 
-        public override void DealDamage(Hero target)
+        public override void DealDamage(IDamageTarget receiver)
         {
-            base.DealDamage(target);
-            _lifeSteal.ApplyLifeSteal(target.CurrentHP);
+            base.DealDamage(receiver);
+            
+            if (CheckIsDead() == false)
+            {
+                Heal(_lifeSteal.GetLifeStealAmount(receiver.CurrentHP));
+            }
         }
     }
 }

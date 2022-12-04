@@ -1,4 +1,6 @@
-﻿namespace GladiatorsArena.Heroes.AncientGolem
+﻿using GladiatorsArena.DamageData;
+
+namespace GladiatorsArena.Heroes.AncientGolem
 {
     /// <summary>
     /// Древний Голем.
@@ -15,19 +17,19 @@
 
         private StoneForm _stoneForm;
 
-        public AncientGolem(string name, int maxHP, Damage baseAttackDamage) : base(name, maxHP, baseAttackDamage)
+        public AncientGolem(string name, int maxHP, Damage baseAttackDamage) : base(name, maxHP, baseAttackDamage, HeroType.AncientGolem)
         {
             _stoneForm = new StoneForm(this);
         }
 
-        public override void RecieveDamage(Hero target, Damage damage)
+        public override void ReceiveDamage(IDamageTarget dealer, Damage damage)
         {
-            base.RecieveDamage(target, damage);
+            base.ReceiveDamage(dealer, damage);
 
             if (_stoneForm.ShouldReflectDamage(damage))
             {
                 StoneFormReflectDamage?.Invoke(this);
-                _stoneForm.ReflectDamage(target, damage);
+                _stoneForm.ReflectDamage(dealer, damage);
             }
         }
 
@@ -36,9 +38,9 @@
             return _stoneForm.CalculateDispersionDamage(BaseAttackDamage);
         }
 
-        public override void BeforeRound()
+        public override void OnRoundStarted()
         {
-            base.BeforeRound();
+            base.OnRoundStarted();
             _stoneForm.BeforeNewRound();
         }
     }

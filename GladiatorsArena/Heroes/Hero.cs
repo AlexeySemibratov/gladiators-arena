@@ -1,11 +1,12 @@
 ﻿using GladiatorsArena.Arena;
+using GladiatorsArena.DamageData;
 
 namespace GladiatorsArena.Heroes
 {
-    internal abstract class Hero : IArenaEntity<Hero>
+    internal abstract class Hero : IArenaFighter, IDamageTarget
     {
-        public delegate void DamageDealedEventHandler(Hero Dealer, Hero Target, Damage DamageSource);
-        public delegate void DamageReceivedEventHandler(Hero Dealer, Hero Target, Damage DamageSource);
+        public delegate void DamageDealedEventHandler(Hero Target, Damage DamageSource);
+        public delegate void DamageReceivedEventHandler(Hero Target, Damage DamageSource);
         public delegate void HealReceivedEventHandler(Hero Target, int HealAmount);
         public delegate void DamageChangedEventHandler(Hero Target, Damage OldValue, Damage NewValue);
 
@@ -15,18 +16,22 @@ namespace GladiatorsArena.Heroes
         public event DamageChangedEventHandler DamageChanged;
 
         public string Name { get; private set; }
-        public int MaxHP { get; private set; } 
-        public int CurrentHP { get; private set; }
+
+        public HeroType HeroType { get; private set; }
 
         public Damage BaseAttackDamage { get; private set; }
-        public Hero Entity => this; 
 
-        public Hero(string name, int maxHP, Damage baseAttackDamage)
+        public int MaxHP { get; private set; }
+
+        public int CurrentHP { get; private set; }
+
+        public Hero(string name, int maxHP, Damage baseAttackDamage, HeroType heroType)
         {
             Name = name;
             MaxHP = maxHP;
             CurrentHP = maxHP;
             BaseAttackDamage = baseAttackDamage;
+            HeroType = heroType;
         }
 
         protected virtual Damage GetOutgoingDamage()
@@ -34,47 +39,47 @@ namespace GladiatorsArena.Heroes
             return BaseAttackDamage;
         }
 
-        public virtual void DealDamage(Hero target)
-        {
-            Damage damage = GetOutgoingDamage();
-            DamageDealed?.Invoke(this, target, damage);
-            target.RecieveDamage(this, damage);
-        }
-
-        public virtual void RecieveDamage(Hero target, Damage damage)
-        {
-            CurrentHP = Math.Clamp(CurrentHP - damage.DamageAmount, 0, MaxHP);
-            DamageReceived?.Invoke(target, this, damage);
-        }
-
-        public virtual void SetDamage(Damage newDamage)
+        protected virtual void SetDamage(Damage newDamage)
         {
             DamageChanged?.Invoke(this, BaseAttackDamage, newDamage);
             BaseAttackDamage = newDamage;
         }
 
-        public virtual void Heal(int healAmount)
+        protected virtual void Heal(int healAmount)
         {
             CurrentHP = Math.Clamp(CurrentHP + healAmount, 0, MaxHP);
 
             HealReceived?.Invoke(this, healAmount);
         }
 
-        public bool IsDead()
+        public bool CheckIsDead()
         {
             return CurrentHP <= 0;
         }
 
-        public virtual void BeforeRound()
+        public virtual void DealDamage(IDamageTarget receiver)
+        {
+            Damage damage = GetOutgoingDamage();
+            DamageDealed?.Invoke(this, damage);
+            receiver.ReceiveDamage(this, damage);
+        }
+
+        public virtual void ReceiveDamage(IDamageTarget dealer, Damage damage)
+        {
+            CurrentHP = Math.Clamp(CurrentHP - damage.DamageAmount, 0, MaxHP);
+            DamageReceived?.Invoke(this, damage);
+        }
+
+        public virtual void OnRoundStarted()
         {
         }
 
-        public virtual void OnRound(Hero target)
+        public virtual void PerformRound(IDamageTarget target)
         {
             DealDamage(target);
         }
 
-        public virtual void AfterRound()
+        public virtual void OnRoundFinished()
         {
         }
     }

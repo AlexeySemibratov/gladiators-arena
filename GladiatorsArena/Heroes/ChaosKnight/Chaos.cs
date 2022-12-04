@@ -1,4 +1,6 @@
-﻿namespace GladiatorsArena.Heroes.ChaosKnight
+﻿using GladiatorsArena.DamageData;
+
+namespace GladiatorsArena.Heroes.ChaosKnight
 {
     internal class Chaos
     {
@@ -7,9 +9,9 @@
 
         private readonly Random _random = new Random();
 
-        private ChaosKnight _hero;
+        private Hero _hero;
 
-        public Chaos(ChaosKnight hero)
+        public Chaos(Hero hero)
         {
             _hero = hero;
         }
@@ -33,10 +35,10 @@
             return _random.NextDouble() <= ChaosSummonChance;
         }
 
-        public void SummonChaosCopy(Hero target)
+        public void SummonChaosCopy(IDamageTarget target)
         {
             var summonDamage = new Damage(_hero.BaseAttackDamage.DamageAmount, DamageType.Magical);
-            target.RecieveDamage(_hero, summonDamage);
+            target.ReceiveDamage(_hero, summonDamage);
         }
     }
 }

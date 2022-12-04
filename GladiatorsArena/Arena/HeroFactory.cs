@@ -1,12 +1,8 @@
-﻿using GladiatorsArena.Heroes;
+﻿using GladiatorsArena.DamageData;
+using GladiatorsArena.Heroes;
 using GladiatorsArena.Heroes.AncientGolem;
 using GladiatorsArena.Heroes.ChaosKnight;
 using GladiatorsArena.Heroes.Vampire;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GladiatorsArena.Arena
 {

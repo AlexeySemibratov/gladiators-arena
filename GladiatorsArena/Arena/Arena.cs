@@ -1,24 +1,22 @@
 ﻿using GladiatorsArena.Heroes;
-using GladiatorsArena.Heroes.AncientGolem;
-using GladiatorsArena.Heroes.ChaosKnight;
-using GladiatorsArena.Heroes.Vampire;
+using GladiatorsArena.DamageData;
 
 namespace GladiatorsArena.Arena
 {
     internal class Arena
     {
 
-        private IArenaEntity<Hero> _first_entity;
-        private IArenaEntity<Hero> _second_entity;
+        private Hero _firstFighter;
+        private Hero _secondFighter;
 
         private ArenaCommentator _commentator;
 
-        public Arena(IArenaEntity<Hero> firstEntity, IArenaEntity<Hero> secondEntity)
+        public Arena(Hero firstHero, Hero secondHero)
         {
-            _first_entity = firstEntity;
-            _second_entity = secondEntity;
+            _firstFighter = firstHero;
+            _secondFighter = secondHero;
 
-            _commentator = new ArenaCommentator(firstEntity.Entity, secondEntity.Entity);
+            _commentator = new ArenaCommentator(firstHero, secondHero);
         }
 
         public void StartBattle()
@@ -27,27 +25,42 @@ namespace GladiatorsArena.Arena
 
             int roundNumber = 1;
 
-            while (_first_entity.Entity.IsDead() == false && _second_entity.Entity.IsDead() == false)
+            while (_firstFighter.CheckIsDead() == false && _secondFighter.CheckIsDead() == false)
             {
                 _commentator.CommentRoundStart(roundNumber++);
 
-                _commentator.CommentBeforeRoundStarted();
+                StartRound();
 
-                _first_entity.BeforeRound();
-                _second_entity.BeforeRound();
+                PerformRound();
 
-                _commentator.CommentOnRoundStarted();
-
-                _first_entity.OnRound(_second_entity.Entity);
-                _second_entity.OnRound(_first_entity.Entity);
-
-                _first_entity.AfterRound();
-                _second_entity.AfterRound();
-
-                _commentator.CommentRoundEnded();
+                EndRound();
             }
             _commentator.CommentBattleEnd();
         }
 
+        private void StartRound()
+        {
+            _commentator.CommentBeforeRoundStarted();
+
+            _firstFighter.OnRoundStarted();
+            _secondFighter.OnRoundStarted();
+        }
+
+
+        private void PerformRound()
+        {
+            _commentator.CommentOnRoundStarted();
+
+            _firstFighter.PerformRound(_secondFighter);
+            _secondFighter.PerformRound(_firstFighter);
+        }
+
+        private void EndRound()
+        {
+            _firstFighter.OnRoundFinished();
+            _secondFighter.OnRoundFinished();
+
+            _commentator.CommentRoundEnded();
+        }
     }
 }

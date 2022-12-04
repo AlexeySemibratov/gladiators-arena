@@ -1,4 +1,4 @@
-﻿using GladiatorsArena.Heroes.AncientGolem;
+﻿using GladiatorsArena.DamageData;
 
 namespace GladiatorsArena.Heroes.AncientGolem
 {
@@ -11,11 +11,11 @@ namespace GladiatorsArena.Heroes.AncientGolem
 
         private readonly Random _random = new Random();
 
-        private AncientGolem _hero;
+        private Hero _hero;
 
         private bool _wasDamageReflected = false;
 
-        public StoneForm(AncientGolem hero)
+        public StoneForm(Hero hero)
         {
             _hero = hero;
         }
@@ -38,14 +38,14 @@ namespace GladiatorsArena.Heroes.AncientGolem
             return incomingDamage.Type == DamageType.Physical && _wasDamageReflected == false;
         }
 
-        public void ReflectDamage(Hero target, Damage incomingDamage)
+        public void ReflectDamage(IDamageTarget target, Damage incomingDamage)
         {
              _wasDamageReflected = true;
 
              int reflectedDamageAmount = (int)(incomingDamage.DamageAmount * DamageReflectionMultiplier);
              var reflectedDamage = new Damage(reflectedDamageAmount, incomingDamage.Type);
 
-             target.RecieveDamage(_hero, reflectedDamage);
+             target.ReceiveDamage(_hero, reflectedDamage);
         }
     }
 }

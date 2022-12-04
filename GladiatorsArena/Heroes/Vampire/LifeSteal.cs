@@ -6,24 +6,20 @@
         private const float LifeStealAdditionalMultiplier = 2f;
 
 
-        private Vampire _hero;
-        public LifeSteal(Vampire hero)
+        private Hero _hero;
+
+        public LifeSteal(Hero hero)
         {
             _hero = hero;
         }
 
-        public void ApplyLifeSteal(int enemyHP)
+        public int GetLifeStealAmount(int enemyHP)
         {
-            if (_hero.IsDead())
-            {
-                return;
-            }
-
             float lifeStealMultiplier = CalculateLifeStealMultiplier(_hero.CurrentHP, enemyHP);
 
             int healAmount = (int)(_hero.BaseAttackDamage.DamageAmount * lifeStealMultiplier);
 
-            _hero.Heal(healAmount);
+            return healAmount;
         }
 
         private float CalculateLifeStealMultiplier(int heroHP, int enemyHP)

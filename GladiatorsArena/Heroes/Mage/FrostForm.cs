@@ -1,29 +1,26 @@
-﻿namespace GladiatorsArena.Heroes
+﻿using GladiatorsArena.DamageData;
+
+namespace GladiatorsArena.Heroes
 {
     internal class FrostForm
     {
         private const int ManaCost = 100;
         private const int DamageMultiplier = 2;
 
-        private Mage _mage;
+        private Hero _mage;
 
         private bool _isShieldActive = false;
         private bool _isDamageBoostActive = false;
 
-        public FrostForm(Mage mage)
+        public FrostForm(Hero mage)
         {
             _mage = mage;
         }
 
-        public bool IsEnoughMana()
-        {
-            return _mage.CurrentMana >= ManaCost;
-        }
+        public int GetManaCost() => ManaCost;
 
         public void ActivateAbility()
         {
-            _mage.RemoveMana(ManaCost);
-
             _isShieldActive = true;
             _isDamageBoostActive = true;
         }

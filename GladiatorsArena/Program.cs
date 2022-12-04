@@ -12,7 +12,7 @@ var hero3 = factory.CreateWarrior("Воин");
 var hero4 = factory.CreateMage("Маг");
 var hero5 = factory.CreateChaosKnight("Рыцарь Хаоса");
 
-var arena = new Arena(hero1, hero2);
+var arena = new Arena(hero4, hero5);
 arena.StartBattle();
 
 

@@ -1,4 +1,6 @@
-﻿namespace GladiatorsArena.Heroes.ChaosKnight
+﻿using GladiatorsArena.DamageData;
+
+namespace GladiatorsArena.Heroes.ChaosKnight
 {
     /// <summary>
     /// Рыцарь хаоса.
@@ -14,23 +16,23 @@
 
         private Chaos _chaos;
 
-        public ChaosKnight(string name, int maxHP, Damage baseAttackDamage) : base(name, maxHP, baseAttackDamage)
+        public ChaosKnight(string name, int maxHP, Damage baseAttackDamage) : base(name, maxHP, baseAttackDamage, HeroType.ChaosKnight)
         {
             _chaos = new Chaos(this);
         }
 
-        public override void RecieveDamage(Hero target, Damage damage)
+        public override void ReceiveDamage(IDamageTarget dealer, Damage damage)
         {
-            base.RecieveDamage(target, _chaos.GetReducedDamage(damage));
+            base.ReceiveDamage(dealer, _chaos.GetReducedDamage(damage));
         }
 
-        public override void DealDamage(Hero target)
+        public override void DealDamage(IDamageTarget receiver)
         {
-            base.DealDamage(target);
+            base.DealDamage(receiver);
             if (_chaos.ShouldSummonChaosCopy())
             {
                 ChaosCopySummoned?.Invoke(this);
-                _chaos.SummonChaosCopy(target);
+                _chaos.SummonChaosCopy(receiver);
             }
         }
     }

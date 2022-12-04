@@ -1,4 +1,7 @@
-﻿namespace GladiatorsArena.Heroes
+﻿using GladiatorsArena.DamageData;
+using static System.Net.Mime.MediaTypeNames;
+
+namespace GladiatorsArena.Heroes
 {
     /// <summary>
     /// Маг.
@@ -24,7 +27,7 @@
             string name,
             int maxHP,
             Damage baseAttackDamage,
-            int maxMana) : base(name, maxHP, baseAttackDamage)
+            int maxMana) : base(name, maxHP, baseAttackDamage, HeroType.Mage)
         {
             MaxMana = maxMana;
             CurrentMana = 0;
@@ -38,34 +41,41 @@
             return damage;
         }
 
-        public override void RecieveDamage(Hero target, Damage damage)
+        public override void ReceiveDamage(IDamageTarget dealer, Damage damage)
         {
             var actualDamage = _frostForm.ReduceDamage(damage);
-            base.RecieveDamage(target, actualDamage);
+            base.ReceiveDamage(dealer, actualDamage);
         }
 
-        public override void BeforeRound()
+        public override void OnRoundStarted()
         {
-            base.BeforeRound();
-            if (_frostForm.IsEnoughMana())
+            base.OnRoundStarted();
+
+            if (IsEnoughManaForFrostForm())
             {
                 FrostFormActivated?.Invoke(this);
                 _frostForm.ActivateAbility();
+                RemoveMana(_frostForm.GetManaCost());
             }
         }
 
-        public override void AfterRound()
+        public bool IsEnoughManaForFrostForm()
         {
-            base.AfterRound();
+            return CurrentMana >= _frostForm.GetManaCost();
+        }
+
+        public override void OnRoundFinished()
+        {
+            base.OnRoundFinished();
             AddMana(ManaRegenerationPerRound);
         }
 
-        public void AddMana(int manaToAdd)
+        private void AddMana(int manaToAdd)
         {
             CurrentMana = Math.Clamp(CurrentMana + manaToAdd, 0, MaxMana);
         }
 
-        public void RemoveMana(int manaToRemove)
+        private void RemoveMana(int manaToRemove)
         {
             CurrentMana = Math.Clamp(CurrentMana - manaToRemove, 0, MaxMana);
         }

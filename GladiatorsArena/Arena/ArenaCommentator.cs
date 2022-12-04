@@ -1,10 +1,8 @@
-﻿using GladiatorsArena.Heroes;
-using GladiatorsArena.Heroes.AncientGolem;
-using GladiatorsArena.Heroes.ChaosKnight;
+﻿using GladiatorsArena.DamageData;
+using GladiatorsArena.Heroes;
 using GladiatorsArena.Heroes.Vampire;
 using GladiatorsArena.Presentation;
 using System.Drawing;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace GladiatorsArena.Arena
 {
@@ -14,16 +12,31 @@ namespace GladiatorsArena.Arena
         private Hero _firstHero;
         private Hero _secondHero;
 
+        private Dictionary<HeroType, Color> _heroTypeColors = new Dictionary<HeroType, Color>
+        {
+            { HeroType.Warrior, Colors.Gray },
+            { HeroType.Mage, Colors.Blue },
+            { HeroType.Vampire, Colors.Olive },
+            { HeroType.ChaosKnight, Colors.Red },
+            { HeroType.AncientGolem, Colors.Brown },
+        };
+
+        private Dictionary<DamageType, string> _damageTypesNames = new Dictionary<DamageType, string>
+        {
+            { DamageType.Physical, "Физического" },
+            { DamageType.Magical, "Магического" }
+        };
+
         public ArenaCommentator(Hero firstHero, Hero secondHero)
         {
             _firstHero = firstHero;
             _secondHero = secondHero;
 
-            CommentHeroEvents(_firstHero);
-            CommentHeroEvents(_secondHero);
+            RegisterHeroEvents(_firstHero);
+            RegisterHeroEvents(_secondHero);
         }
 
-        private void CommentHeroEvents(Hero hero)
+        private void RegisterHeroEvents(Hero hero)
         {
             hero.DamageDealed += CommentDamageDealedEvent;
             hero.DamageReceived += CommentDamageReceivedEvent;
@@ -68,11 +81,11 @@ namespace GladiatorsArena.Arena
 
         private void CommentBattleResult()
         {
-            if (_firstHero.IsDead() && _secondHero.IsDead())
+            if (_firstHero.CheckIsDead() && _secondHero.CheckIsDead())
             {
                 Console.WriteLine("Участники не смогли выявить победителя!".Colored(Colors.Orange));
             }
-            else if (_firstHero.IsDead())
+            else if (_firstHero.CheckIsDead())
             {
                 Console.WriteLine("Победил второй участник!".Colored(Colors.Orange));
             }
@@ -140,13 +153,13 @@ namespace GladiatorsArena.Arena
             Console.WriteLine(text);
         }
 
-        private void CommentDamageDealedEvent(Hero dealer, Hero target, Damage damageSource)
+        private void CommentDamageDealedEvent(Hero dealer, Damage damageSource)
         {
-            var text = string.Format("{0} атакует {1}!", GetHeroColoredName(dealer), GetHeroColoredName(target));
+            var text = string.Format("{0} атакует!", GetHeroColoredName(dealer));
             Console.WriteLine(text);
         }
 
-        private void CommentDamageReceivedEvent(Hero dealer, Hero target, Damage damageSource)
+        private void CommentDamageReceivedEvent(Hero target, Damage damageSource)
         {
             string text;
 
@@ -196,29 +209,14 @@ namespace GladiatorsArena.Arena
 
         private string GetDamageTypeName(DamageType type)
         {
-            string damageTypeName = type switch
-            {
-                DamageType.Physical => "Физического",
-                DamageType.Magical => "Магического",
-                _ => "",
-            };
-
-            return damageTypeName;
+            return _damageTypesNames[type];
         }
 
         private string GetHeroColoredName(Hero hero)
         {
-            string coloredNameString = hero switch
-            {
-                IWarrior => hero.Name.Colored(Colors.Gray),
-                IMage => hero.Name.Colored(Colors.Blue),
-                IVampire => hero.Name.Colored(Colors.Olive),
-                IChaosKnight => hero.Name.Colored(Colors.Red),
-                IAncientGolem => hero.Name.Colored(Colors.Brown),
-                _ => "Неизвестный герой!",
-            };
+            Color color = _heroTypeColors[hero.HeroType];
 
-            return coloredNameString;
+            return hero.Name.Colored(color);
         }
 
     }

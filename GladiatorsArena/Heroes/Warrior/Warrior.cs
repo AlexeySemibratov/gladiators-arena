@@ -1,4 +1,6 @@
-﻿namespace GladiatorsArena.Heroes
+﻿using GladiatorsArena.DamageData;
+
+namespace GladiatorsArena.Heroes
 {
     /// <summary>
     /// Воин.
@@ -14,19 +16,27 @@
 
         private Revenge _revenge;
 
-        public Warrior(string name, int maxHP, Damage baseAttackDamage) : base(name, maxHP, baseAttackDamage)
+        public Warrior(string name, int maxHP, Damage baseAttackDamage) : base(name, maxHP, baseAttackDamage, HeroType.Warrior)
         {
             _revenge = new Revenge(this);
         }
 
-        public override void RecieveDamage(Hero target, Damage damage)
+        public override void ReceiveDamage(IDamageTarget dealer, Damage damage)
         {
-            base.RecieveDamage(target, damage);
+            base.ReceiveDamage(dealer, damage);
+
             if (_revenge.ShouldActivate())
             {
                 RevengeActivated?.Invoke(this);
-                _revenge.Activate(damage);
+                _revenge.Activate();
+                ApplyRevengeBuffs(damage);
             }
+        }
+
+        private void ApplyRevengeBuffs(Damage incomingDamage)
+        {
+            Heal(_revenge.GetHPRestorationAmount());
+            SetDamage(_revenge.GetBuffedDamage(incomingDamage));
         }
     }
 }
