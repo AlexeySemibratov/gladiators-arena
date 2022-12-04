@@ -1,6 +1,6 @@
 ﻿using GladiatorsArena.DamageData;
 
-namespace GladiatorsArena.Arena
+namespace GladiatorsArena.ArenaModule
 {
     /// <summary>
     /// Базовый интерфейс для участника арены

@@ -4,7 +4,7 @@ using GladiatorsArena.Heroes.AncientGolem;
 using GladiatorsArena.Heroes.ChaosKnight;
 using GladiatorsArena.Heroes.Vampire;
 
-namespace GladiatorsArena.Arena
+namespace GladiatorsArena.ArenaModule
 {
     internal class HeroFactory
     {
@@ -18,27 +18,39 @@ namespace GladiatorsArena.Arena
         {
         }
 
-        public Hero CreateWarrior(string name)
+        public Hero CreateHeroByType(HeroType type, string name)
+        {
+            return type switch
+            {
+                HeroType.Warrior => CreateWarrior(name),
+                HeroType.Mage => CreateMage(name),
+                HeroType.AncientGolem => CreateAncientGolem(name),
+                HeroType.Vampire => CreateVampire(name),
+                HeroType.ChaosKnight => CreateChaosKnight(name),
+            };      
+        }
+
+        private Hero CreateWarrior(string name)
         {
             return new Warrior(name, 180, _warDamage);
         }
 
-        public Hero CreateMage(string name)
+        private Hero CreateMage(string name)
         {
             return new Mage(name, 120, _mageDamage, 100);
         }
 
-        public Hero CreateAncientGolem(string name)
+        private Hero CreateAncientGolem(string name)
         {
             return new AncientGolem(name, 200, _golemDamage);
         }
 
-        public Hero CreateChaosKnight(string name)
+        private Hero CreateChaosKnight(string name)
         {
             return new ChaosKnight(name, 160, _chaosDamage);
         }
 
-        public Hero CreateVampire(string name)
+        private Hero CreateVampire(string name)
         {
             return new Vampire(name, 140, _vampireDamage);
         }

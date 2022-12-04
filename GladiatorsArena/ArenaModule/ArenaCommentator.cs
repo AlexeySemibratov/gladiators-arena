@@ -1,25 +1,15 @@
 ﻿using GladiatorsArena.DamageData;
 using GladiatorsArena.Heroes;
-using GladiatorsArena.Heroes.Vampire;
 using GladiatorsArena.Presentation;
 using System.Drawing;
 
-namespace GladiatorsArena.Arena
+namespace GladiatorsArena.ArenaModule
 {
     internal class ArenaCommentator
     {
 
         private Hero _firstHero;
         private Hero _secondHero;
-
-        private Dictionary<HeroType, Color> _heroTypeColors = new Dictionary<HeroType, Color>
-        {
-            { HeroType.Warrior, Colors.Gray },
-            { HeroType.Mage, Colors.Blue },
-            { HeroType.Vampire, Colors.Olive },
-            { HeroType.ChaosKnight, Colors.Red },
-            { HeroType.AncientGolem, Colors.Brown },
-        };
 
         private Dictionary<DamageType, string> _damageTypesNames = new Dictionary<DamageType, string>
         {
@@ -214,8 +204,7 @@ namespace GladiatorsArena.Arena
 
         private string GetHeroColoredName(Hero hero)
         {
-            Color color = _heroTypeColors[hero.HeroType];
-
+            Color color = hero.HeroType.GetHeroTypeColor();
             return hero.Name.Colored(color);
         }
 

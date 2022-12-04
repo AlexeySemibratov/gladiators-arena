@@ -1,10 +1,10 @@
 ﻿using GladiatorsArena.Heroes;
-using GladiatorsArena.DamageData;
 
-namespace GladiatorsArena.Arena
+namespace GladiatorsArena.ArenaModule
 {
     internal class Arena
     {
+        public event Action BattleFinished;
 
         private Hero _firstFighter;
         private Hero _secondFighter;
@@ -36,6 +36,8 @@ namespace GladiatorsArena.Arena
                 EndRound();
             }
             _commentator.CommentBattleEnd();
+
+            BattleFinished?.Invoke();
         }
 
         private void StartRound()

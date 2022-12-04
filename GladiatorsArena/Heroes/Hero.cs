@@ -1,4 +1,4 @@
-﻿using GladiatorsArena.Arena;
+﻿using GladiatorsArena.ArenaModule;
 using GladiatorsArena.DamageData;
 
 namespace GladiatorsArena.Heroes
@@ -34,24 +34,6 @@ namespace GladiatorsArena.Heroes
             HeroType = heroType;
         }
 
-        protected virtual Damage GetOutgoingDamage()
-        {
-            return BaseAttackDamage;
-        }
-
-        protected virtual void SetDamage(Damage newDamage)
-        {
-            DamageChanged?.Invoke(this, BaseAttackDamage, newDamage);
-            BaseAttackDamage = newDamage;
-        }
-
-        protected virtual void Heal(int healAmount)
-        {
-            CurrentHP = Math.Clamp(CurrentHP + healAmount, 0, MaxHP);
-
-            HealReceived?.Invoke(this, healAmount);
-        }
-
         public bool CheckIsDead()
         {
             return CurrentHP <= 0;
@@ -81,6 +63,24 @@ namespace GladiatorsArena.Heroes
 
         public virtual void OnRoundFinished()
         {
+        }
+
+        protected virtual Damage GetOutgoingDamage()
+        {
+            return BaseAttackDamage;
+        }
+
+        protected virtual void SetDamage(Damage newDamage)
+        {
+            DamageChanged?.Invoke(this, BaseAttackDamage, newDamage);
+            BaseAttackDamage = newDamage;
+        }
+
+        protected virtual void Heal(int healAmount)
+        {
+            CurrentHP = Math.Clamp(CurrentHP + healAmount, 0, MaxHP);
+
+            HealReceived?.Invoke(this, healAmount);
         }
     }
 }
