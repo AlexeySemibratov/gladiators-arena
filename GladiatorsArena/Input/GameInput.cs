@@ -7,17 +7,7 @@ namespace GladiatorsArena.Input
 {
     public class GameInput
     {
-        private enum InputCommand
-        {
-            Restart,
-            Exit
-        }
-
-        private record SelectedHero(HeroType Type,string Name);
-
-        private const int InputNumberInvalid = -1;
-
-        private const int HeroesCount = 2;
+        private const int NumberOfHeroes = 2;
 
         private const string WarriorInfo = "Восстанавливает здроровье и получает дополнительный урон при первой смерти.";
         private const string MageInfo = "Увеличивает урон от атаки и поглощает урон с помощью ледяной формы.";
@@ -25,7 +15,7 @@ namespace GladiatorsArena.Input
         private const string ChaosKnightInfo = "Блокирует часть магического урона. Призывают иллюзию, которая наносит урон";
         private const string AncientGolemInfo = "Отражает часть входящего урона обратно во врага. Наносит случайный урон.";
 
-        private readonly HeroType[] _availableHeroes = Enum.GetValues<HeroType>();
+        private readonly HeroType[] _availableHeroTypes = Enum.GetValues<HeroType>();
 
         private readonly InputCommand[] _availableInputCommands = Enum.GetValues<InputCommand>();
 
@@ -47,7 +37,7 @@ namespace GladiatorsArena.Input
 
         private void InitHeroesInfoDictionary()
         {
-            foreach (HeroType type in _availableHeroes)
+            foreach (HeroType type in _availableHeroTypes)
             {
                 _heroesInfo.Add(type, string.Format("{0}. {1}", GetColoredHeroTypeName(type), GetHeroTypeInfo(type)));
             }
@@ -97,7 +87,7 @@ namespace GladiatorsArena.Input
 
             while (true)
             {
-                if (currentHeroIndex > HeroesCount)
+                if (currentHeroIndex > NumberOfHeroes)
                 {
                     StartBattle();
                     break;
@@ -121,14 +111,17 @@ namespace GladiatorsArena.Input
             {
                 Console.WriteLine("Укажите тип героя:");
 
-                int heroTypeNumber = ParseIntegerInput(Console.ReadLine());
+                string? input = Console.ReadLine();
 
-                if (CheckHeroTypeNumberIsCorrect(heroTypeNumber) == false)
+                if (int.TryParse(input, out int heroTypeNumber) && CheckHeroTypeNumberIsCorrect(heroTypeNumber))
+                {
+                    return (HeroType)(heroTypeNumber - 1);
+                }
+                else
                 {
                     PrintHeroTypeInputError();
                     continue;
                 }
-                return (HeroType) (heroTypeNumber - 1); 
             }
         }
 
@@ -152,35 +145,23 @@ namespace GladiatorsArena.Input
 
         private void PrintHeroesInfo()
         {
-            Console.WriteLine("Достпуные герои:");
+            Console.WriteLine("Доступные герои:");
 
-            for (int i = 0; i < _availableHeroes.Length; i++)
+            for (int i = 0; i < _availableHeroTypes.Length; i++)
             {
-                var heroType = _availableHeroes[i];
+                var heroType = _availableHeroTypes[i];
                 Console.WriteLine("{0}. {1}", i + 1, _heroesInfo[heroType]);
-            }
-        }
-
-        private int ParseIntegerInput(string input)
-        {
-            try
-            {
-                return int.Parse(input);
-            }
-            catch
-            {
-                return InputNumberInvalid;
             }
         }
 
         private bool CheckHeroTypeNumberIsCorrect(int heroTypeNumber)
         {
-            return heroTypeNumber > 0 && heroTypeNumber <= _availableHeroes.Length;
+            return heroTypeNumber > 0 && heroTypeNumber <= _availableHeroTypes.Length;
         }
 
         private void PrintHeroTypeInputError()
         {
-            Console.WriteLine("Неверно указан тип героя. Это должно быть число в диапазоне {0}-{1}", 1, _availableHeroes.Length);
+            Console.WriteLine("Неверно указан тип героя. Это должно быть число в диапазоне {0}-{1}", 1, _availableHeroTypes.Length);
         }
 
         private void PrintHeroNameInputError()
@@ -190,17 +171,29 @@ namespace GladiatorsArena.Input
 
         private void StartBattle()
         {
-            SelectedHero firstSelectedHero = _selectedHeroes[0];
-            SelectedHero secondSelectedHero = _selectedHeroes[1];
+            int selectedHeroesCount = _selectedHeroes.Count;
 
-            Hero firstHero = _heroFactory.CreateHeroByType(firstSelectedHero.Type, firstSelectedHero.Name);
-            Hero secondHero = _heroFactory.CreateHeroByType(secondSelectedHero.Type, secondSelectedHero.Name);
+            if (selectedHeroesCount != NumberOfHeroes)
+            {
+                string message = string.Format("Количество выбранных героев для участия на арене должно быть равно {0}, а было {1}", NumberOfHeroes, selectedHeroesCount);
+                throw new ArgumentException(message);
+            }
+
+            Hero firstHero = CreateHero(0);
+            Hero secondHero = CreateHero(1);
 
             var arena = new Arena(firstHero, secondHero);
 
             arena.BattleFinished += AwaitCommand;
 
             arena.StartBattle();
+        }
+
+        private Hero CreateHero(int heroNumber)
+        {
+            SelectedHero selectedHero = _selectedHeroes[heroNumber];
+
+            return _heroFactory.CreateHeroByType(selectedHero.Type, selectedHero.Name);
         }
 
         private void AwaitCommand()
@@ -216,17 +209,17 @@ namespace GladiatorsArena.Input
         {
             while (true)
             {
-                int inputNumber = ParseIntegerInput(Console.ReadLine());
+                string? input = Console.ReadLine();
 
-                if (CheckCommandNumberIsValid(inputNumber) == false)
-                {
-                    PrintInvalidCommandNumber();
-                    continue;
-                } 
-                else
+                if (int.TryParse(input, out int inputNumber) && CheckCommandNumberIsValid(inputNumber))
                 {
                     ProcessCommand((InputCommand)inputNumber);
                     break;
+                } 
+                else
+                {
+                    PrintInvalidCommandNumber();
+                    continue;
                 }
             }
         }
@@ -251,9 +244,16 @@ namespace GladiatorsArena.Input
                     Reset();
                     break;
                 case InputCommand.Exit:
-                    Environment.Exit(0);
                     break;
             }
         }
+
+        private enum InputCommand
+        {
+            Restart,
+            Exit
+        }
+
+        private record SelectedHero(HeroType Type, string Name);
     }
 }
