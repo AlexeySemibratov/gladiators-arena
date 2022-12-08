@@ -6,21 +6,35 @@ namespace GladiatorsArena.ArenaModule
     {
         public event Action BattleFinished;
 
-        private Hero _firstFighter;
-        private Hero _secondFighter;
+        private Hero _firstFighter = null;
+        private Hero _secondFighter = null;
 
         private ArenaCommentator _commentator;
 
-        public Arena(Hero firstHero, Hero secondHero)
+        public Arena()
         {
-            _firstFighter = firstHero;
-            _secondFighter = secondHero;
+        }
 
-            _commentator = new ArenaCommentator(firstHero, secondHero);
+        public void SetFirstFighter(Hero hero)
+        {
+            _firstFighter = hero;
+        }
+
+        public void SetSecondFighter(Hero hero)
+        {
+            _secondFighter = hero;
         }
 
         public void StartBattle()
         {
+            if (CheckHeroesExist() == false)
+            {
+                Console.WriteLine("Невозможно начать битву когда отсутствует хотя бы один из героев!");
+                return;
+            }
+
+            _commentator = new ArenaCommentator(_firstFighter, _secondFighter);
+
             _commentator.CommentBattleStart();
 
             int roundNumber = 1;
@@ -63,6 +77,11 @@ namespace GladiatorsArena.ArenaModule
             _secondFighter.OnRoundFinished();
 
             _commentator.CommentRoundEnded();
+        }
+
+        private bool CheckHeroesExist()
+        {
+            return _firstFighter != null && _secondFighter != null;
         }
     }
 }

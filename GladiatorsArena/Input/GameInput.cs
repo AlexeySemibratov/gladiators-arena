@@ -23,6 +23,7 @@ namespace GladiatorsArena.Input
 
         private Dictionary<HeroType, string> _heroesInfo = new Dictionary<HeroType, string>();
 
+        private Arena _arena = new Arena();
         private HeroFactory _heroFactory = new HeroFactory();
 
         private List<SelectedHero> _selectedHeroes = new List<SelectedHero>();
@@ -34,7 +35,18 @@ namespace GladiatorsArena.Input
 
         public void Start()
         {
+            SubscribeToEvents();
             Reset();
+        }
+
+        private void SubscribeToEvents()
+        {
+            _arena.BattleFinished += AwaitCommandAfterBattle;
+        }
+
+        private void UnsubscribeFromEvents()
+        {
+            _arena.BattleFinished -= AwaitCommandAfterBattle;
         }
 
         private void InitHeroesInfoDictionary()
@@ -167,7 +179,7 @@ namespace GladiatorsArena.Input
             Console.WriteLine("Имя героя не может быть пустым.");
         }
 
-        private void StartBattle()
+        private async void StartBattle()
         {
             int selectedHeroesCount = _selectedHeroes.Count;
 
@@ -177,14 +189,10 @@ namespace GladiatorsArena.Input
                 throw new ArgumentException(message);
             }
 
-            Hero firstHero = CreateHero(0);
-            Hero secondHero = CreateHero(1);
+            _arena.SetFirstFighter(CreateHero(0));
+            _arena.SetSecondFighter(CreateHero(1));
 
-            var arena = new Arena(firstHero, secondHero);
-
-            arena.BattleFinished += AwaitCommand;
-
-            arena.StartBattle();
+            _arena.StartBattle();
         }
 
         private Hero CreateHero(int heroNumber)
@@ -194,7 +202,7 @@ namespace GladiatorsArena.Input
             return _heroFactory.CreateHeroByType(selectedHero.Type, selectedHero.Name);
         }
 
-        private void AwaitCommand()
+        private void AwaitCommandAfterBattle()
         {
             Console.WriteLine("0 - Рестарт");
             Console.WriteLine("1 - Завершить");
@@ -245,6 +253,7 @@ namespace GladiatorsArena.Input
                     Reset();
                     break;
                 case InputCommand.Exit:
+                    UnsubscribeFromEvents();
                     break;
             }
         }
