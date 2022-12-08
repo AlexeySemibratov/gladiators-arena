@@ -9,6 +9,8 @@ namespace GladiatorsArena.Input
     {
         private const int NumberOfHeroes = 2;
 
+        private const int InvalidInput = -1;
+
         private const string WarriorInfo = "Восстанавливает здроровье и получает дополнительный урон при первой смерти.";
         private const string MageInfo = "Увеличивает урон от атаки и поглощает урон с помощью ледяной формы.";
         private const string VampireInfo = "Излечивается от каждой атаки.";
@@ -85,14 +87,8 @@ namespace GladiatorsArena.Input
         {
             int currentHeroIndex = 1;
 
-            while (true)
+            while (currentHeroIndex <= NumberOfHeroes)
             {
-                if (currentHeroIndex > NumberOfHeroes)
-                {
-                    StartBattle();
-                    break;
-                }
-
                 Console.WriteLine("Выбираем героя №{0}", currentHeroIndex);
 
                 HeroType type = ReadHeroType();
@@ -103,6 +99,8 @@ namespace GladiatorsArena.Input
                 _selectedHeroes.Add(selectedHero);
                 currentHeroIndex++;
             }
+
+            StartBattle();
         }
 
         private HeroType ReadHeroType()
@@ -207,14 +205,15 @@ namespace GladiatorsArena.Input
 
         private void AwaitCommandInput()
         {
-            while (true)
+            int inputCommandNumber = InvalidInput;
+
+            while (inputCommandNumber == InvalidInput)
             {
                 string? input = Console.ReadLine();
 
-                if (int.TryParse(input, out int inputNumber) && CheckCommandNumberIsValid(inputNumber))
+                if (int.TryParse(input, out int parsedInt) && CheckCommandNumberIsValid(parsedInt))
                 {
-                    ProcessCommand((InputCommand)inputNumber);
-                    break;
+                    inputCommandNumber = parsedInt;
                 } 
                 else
                 {
@@ -222,6 +221,8 @@ namespace GladiatorsArena.Input
                     continue;
                 }
             }
+
+            ProcessCommand((InputCommand) inputCommandNumber);
         }
 
         private bool CheckCommandNumberIsValid(int number)
