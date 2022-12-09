@@ -4,8 +4,6 @@ namespace GladiatorsArena.ArenaModule
 {
     internal class Arena
     {
-        public event Action BattleFinished;
-
         private Hero _firstFighter = null;
         private Hero _secondFighter = null;
 
@@ -50,8 +48,6 @@ namespace GladiatorsArena.ArenaModule
                 EndRound();
             }
             _commentator.CommentBattleEnd();
-
-            BattleFinished?.Invoke();
         }
 
         private void StartRound()

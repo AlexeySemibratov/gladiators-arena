@@ -35,18 +35,29 @@ namespace GladiatorsArena.Input
 
         public void Start()
         {
-            SubscribeToEvents();
-            Reset();
+            bool gameFinished = false;
+
+            while (gameFinished == false)
+            {
+                PerformGameLoop();
+
+                InputCommand command = ReadInputCommand();
+
+                if (command == InputCommand.Restart)
+                {
+                    continue;
+                } 
+                else
+                {
+                    gameFinished = false;
+                }
+            }
         }
 
-        private void SubscribeToEvents()
+        private void PerformGameLoop()
         {
-            _arena.BattleFinished += AwaitCommandAfterBattle;
-        }
-
-        private void UnsubscribeFromEvents()
-        {
-            _arena.BattleFinished -= AwaitCommandAfterBattle;
+            SelectHeroes();
+            StartBattle();
         }
 
         private void InitHeroesInfoDictionary()
@@ -84,7 +95,7 @@ namespace GladiatorsArena.Input
             };
         }
 
-        private void Reset()
+        private void SelectHeroes()
         {
             _selectedHeroes.Clear();
 
@@ -111,8 +122,6 @@ namespace GladiatorsArena.Input
                 _selectedHeroes.Add(selectedHero);
                 currentHeroIndex++;
             }
-
-            StartBattle();
         }
 
         private HeroType ReadHeroType()
@@ -179,7 +188,7 @@ namespace GladiatorsArena.Input
             Console.WriteLine("Имя героя не может быть пустым.");
         }
 
-        private async void StartBattle()
+        private void StartBattle()
         {
             int selectedHeroesCount = _selectedHeroes.Count;
 
@@ -202,17 +211,10 @@ namespace GladiatorsArena.Input
             return _heroFactory.CreateHeroByType(selectedHero.Type, selectedHero.Name);
         }
 
-        private void AwaitCommandAfterBattle()
+        private InputCommand ReadInputCommand()
         {
-            Console.WriteLine("0 - Рестарт");
-            Console.WriteLine("1 - Завершить");
-            Console.WriteLine("Укажите команду:");
+            PrintInputCommandInfo();
 
-            AwaitCommandInput();
-        }
-
-        private void AwaitCommandInput()
-        {
             int inputCommandNumber = InvalidInput;
 
             while (inputCommandNumber == InvalidInput)
@@ -230,7 +232,14 @@ namespace GladiatorsArena.Input
                 }
             }
 
-            ProcessCommand((InputCommand) inputCommandNumber);
+            return (InputCommand)inputCommandNumber;
+        }
+
+        private void PrintInputCommandInfo()
+        {
+            Console.WriteLine("0 - Рестарт");
+            Console.WriteLine("1 - Завершить");
+            Console.WriteLine("Укажите команду:");
         }
 
         private bool CheckCommandNumberIsValid(int number)
@@ -242,20 +251,7 @@ namespace GladiatorsArena.Input
 
         private void PrintInvalidCommandNumber()
         {
-            Console.WriteLine("Неверное значение команды. Это должгно быть число в диапазоне {0}-{1}", 0, _availableInputCommands.Length - 1);
-        }
-
-        private void ProcessCommand(InputCommand command)
-        {
-            switch (command)
-            {
-                case InputCommand.Restart:
-                    Reset();
-                    break;
-                case InputCommand.Exit:
-                    UnsubscribeFromEvents();
-                    break;
-            }
+            Console.WriteLine("Неверное значение команды. Это должно быть число в диапазоне {0}-{1}", 0, _availableInputCommands.Length - 1);
         }
 
         private enum InputCommand
