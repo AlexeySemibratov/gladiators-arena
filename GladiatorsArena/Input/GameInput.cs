@@ -49,7 +49,7 @@ namespace GladiatorsArena.Input
                 } 
                 else
                 {
-                    gameFinished = false;
+                    gameFinished = true;
                 }
             }
         }
